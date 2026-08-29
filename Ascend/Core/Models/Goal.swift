@@ -3,17 +3,17 @@ import SwiftData
 
 @Model
 final class Goal {
-    var id: UUID
-    var title: String
-    var goalDescription: String
-    var categoryRaw: String
-    var targetValue: Double
-    var currentValue: Double
-    var unit: String
-    var startDate: Date
-    var targetDate: Date
-    var statusRaw: String
-    var createdAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var goalDescription: String = ""
+    var categoryRaw: String = GoalCategory.custom.rawValue
+    var targetValue: Double = 0
+    var currentValue: Double = 0
+    var unit: String = ""
+    var startDate: Date = Date.now
+    var targetDate: Date = Date.now
+    var statusRaw: String = GoalStatus.notStarted.rawValue
+    var createdAt: Date = Date.now
 
     /// Optional link to a Habit whose completions auto-advance progress.
     var linkedHabitID: UUID?
@@ -73,9 +73,9 @@ final class Goal {
 
 @Model
 final class Milestone {
-    var id: UUID
-    var title: String
-    var targetValue: Double
+    var id: UUID = UUID()
+    var title: String = ""
+    var targetValue: Double = 0
     var completionDate: Date?
 
     var goal: Goal?

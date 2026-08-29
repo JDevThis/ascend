@@ -3,8 +3,8 @@ import SwiftData
 
 @Model
 final class BodyMetricEntry {
-    var id: UUID
-    var date: Date
+    var id: UUID = UUID()
+    var date: Date = Date.now
     /// Stored in pounds regardless of display unit; converted for presentation.
     var weightLb: Double?
     var bodyFatPercentage: Double?
@@ -13,7 +13,7 @@ final class BodyMetricEntry {
     var hipsIn: Double?
     var armsIn: Double?
     var legsIn: Double?
-    var source: MetricSource
+    var source: MetricSource = MetricSource.manual
 
     init(
         date: Date = .now,
@@ -46,12 +46,12 @@ enum MetricSource: String, Codable {
 
 @Model
 final class ProgressPhoto {
-    var id: UUID
-    var date: Date
-    var angleRaw: String
+    var id: UUID = UUID()
+    var date: Date = Date.now
+    var angleRaw: String = PhotoAngle.front.rawValue
 
     @Attribute(.externalStorage)
-    var imageData: Data
+    var imageData: Data = Data()
 
     var angle: PhotoAngle {
         get { PhotoAngle(rawValue: angleRaw) ?? .front }

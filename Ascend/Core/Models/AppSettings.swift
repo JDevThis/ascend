@@ -5,14 +5,14 @@ import SwiftData
 /// preferences that need to follow the user across devices.
 @Model
 final class AppSettings {
-    var id: UUID
-    var unitSystemRaw: String
-    var startOfWeekRaw: Int // 1 = Sunday ... 7 = Saturday, matches Calendar.firstWeekday
-    var displayName: String
-    var healthKitSyncEnabled: Bool
-    var habitRemindersEnabled: Bool
-    var workoutRemindersEnabled: Bool
-    var journalPromptsEnabled: Bool
+    var id: UUID = UUID()
+    var unitSystemRaw: String = MeasurementUnitSystem.imperial.rawValue
+    var startOfWeekRaw: Int = 1 // 1 = Sunday ... 7 = Saturday, matches Calendar.firstWeekday
+    var displayName: String = "Athlete"
+    var healthKitSyncEnabled: Bool = false
+    var habitRemindersEnabled: Bool = true
+    var workoutRemindersEnabled: Bool = true
+    var journalPromptsEnabled: Bool = false
     var quietHoursStart: Date?
     var quietHoursEnd: Date?
 

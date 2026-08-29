@@ -3,12 +3,14 @@ import SwiftData
 
 @Model
 final class Exercise {
-    var id: UUID
-    var name: String
-    var muscleGroupRaw: String
-    var notes: String
-    var createdAt: Date
-    var isCustom: Bool
+    // CloudKit requires every non-optional attribute to carry an inline default
+    // value (an init-assigned value alone doesn't satisfy schema validation).
+    var id: UUID = UUID()
+    var name: String = ""
+    var muscleGroupRaw: String = MuscleGroup.other.rawValue
+    var notes: String = ""
+    var createdAt: Date = Date.now
+    var isCustom: Bool = true
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutDayExercise.exercise)
     var dayAssignments: [WorkoutDayExercise]?

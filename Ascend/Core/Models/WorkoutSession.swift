@@ -3,10 +3,10 @@ import SwiftData
 
 @Model
 final class WorkoutSession {
-    var id: UUID
-    var date: Date
-    var duration: TimeInterval
-    var notes: String
+    var id: UUID = UUID()
+    var date: Date = Date.now
+    var duration: TimeInterval = 0
+    var notes: String = ""
 
     var plannedDay: WorkoutDay?
 
@@ -36,12 +36,12 @@ final class WorkoutSession {
 
 @Model
 final class ExerciseSet {
-    var id: UUID
-    var order: Int
-    var reps: Int
-    var weight: Double
+    var id: UUID = UUID()
+    var order: Int = 0
+    var reps: Int = 0
+    var weight: Double = 0
     var rpe: Double?
-    var completed: Bool
+    var completed: Bool = false
 
     var exercise: Exercise?
     var session: WorkoutSession?

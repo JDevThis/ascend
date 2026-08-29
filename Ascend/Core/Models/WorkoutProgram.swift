@@ -3,11 +3,11 @@ import SwiftData
 
 @Model
 final class WorkoutProgram {
-    var id: UUID
-    var name: String
-    var programDescription: String
-    var createdAt: Date
-    var isActive: Bool
+    var id: UUID = UUID()
+    var name: String = ""
+    var programDescription: String = ""
+    var createdAt: Date = Date.now
+    var isActive: Bool = true
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutDay.program)
     var days: [WorkoutDay]?

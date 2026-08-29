@@ -3,9 +3,9 @@ import SwiftData
 
 @Model
 final class WorkoutDay {
-    var id: UUID
-    var name: String
-    var order: Int
+    var id: UUID = UUID()
+    var name: String = ""
+    var order: Int = 0
 
     var program: WorkoutProgram?
 
@@ -31,10 +31,10 @@ final class WorkoutDay {
 /// Join entity linking a library Exercise to a WorkoutDay with planned sets/reps.
 @Model
 final class WorkoutDayExercise {
-    var id: UUID
-    var order: Int
-    var targetSets: Int
-    var targetReps: Int
+    var id: UUID = UUID()
+    var order: Int = 0
+    var targetSets: Int = 3
+    var targetReps: Int = 10
 
     var exercise: Exercise?
     var day: WorkoutDay?

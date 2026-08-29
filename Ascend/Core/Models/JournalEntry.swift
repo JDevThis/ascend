@@ -3,21 +3,21 @@ import SwiftData
 
 @Model
 final class JournalEntry {
-    var id: UUID
-    var date: Date
-    var title: String
-    var body: String
+    var id: UUID = UUID()
+    var date: Date = Date.now
+    var title: String = ""
+    var body: String = ""
     /// 1 (lowest) ... 5 (highest)
-    var mood: Int
-    var tags: [String]
+    var mood: Int = 3
+    var tags: [String] = []
     var linkedWorkoutSessionID: UUID?
     var linkedHabitID: UUID?
 
     @Attribute(.externalStorage)
     var attachedPhotoData: Data?
 
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: Date = Date.now
+    var updatedAt: Date = Date.now
 
     init(
         date: Date = .now,

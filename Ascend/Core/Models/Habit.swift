@@ -3,17 +3,17 @@ import SwiftData
 
 @Model
 final class Habit {
-    var id: UUID
-    var name: String
-    var iconSymbolName: String
-    var colorHex: String
-    var categoryRaw: String
+    var id: UUID = UUID()
+    var name: String = ""
+    var iconSymbolName: String = "star.fill"
+    var colorHex: String = "#6BD9A6"
+    var categoryRaw: String = HabitCategory.custom.rawValue
     /// Target number of completions per week (1...7).
-    var targetFrequency: Int
-    var reminderEnabled: Bool
+    var targetFrequency: Int = 7
+    var reminderEnabled: Bool = false
     var reminderTime: Date?
-    var createdAt: Date
-    var isArchived: Bool
+    var createdAt: Date = Date.now
+    var isArchived: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \HabitCompletion.habit)
     var completions: [HabitCompletion]?
@@ -93,8 +93,8 @@ final class Habit {
 
 @Model
 final class HabitCompletion {
-    var id: UUID
-    var date: Date
+    var id: UUID = UUID()
+    var date: Date = Date.now
 
     var habit: Habit?
 
