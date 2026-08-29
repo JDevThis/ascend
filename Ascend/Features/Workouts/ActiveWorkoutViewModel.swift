@@ -64,13 +64,14 @@ final class ActiveWorkoutViewModel {
         restRemaining = seconds
         restTimer?.invalidate()
         Task { await notificationService.scheduleRestTimerAlert(seconds: seconds) }
-        restTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
+        restTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
                 self.restRemaining -= 1
                 if self.restRemaining <= 0 {
                     self.isResting = false
-                    timer.invalidate()
+                    self.restTimer?.invalidate()
+                    self.restTimer = nil
                 }
             }
         }
