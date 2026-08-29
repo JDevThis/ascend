@@ -2,25 +2,32 @@
 
 Become stronger every day. A single-user personal self-improvement OS: gym tracking, habits, goals, body metrics, progress photos, journaling, and analytics — built with Swift 6, SwiftUI, SwiftData, CloudKit, and HealthKit.
 
-This repository contains the **complete Swift source tree**, but no `.xcodeproj`. It was generated on Windows, where Xcode isn't available, so the project file itself needs to be created on a Mac (a hand-authored `.xcodeproj` is fragile and risks failing to open — Xcode's own project generator is the reliable path). Setup below takes about 10 minutes.
+This repository contains the **complete Swift source tree**, but no `.xcodeproj` — it was generated on Windows, where Xcode isn't available. Instead of a hand-authored (and fragile) `.xcodeproj`, the project file is generated from [`project.yml`](project.yml) using [XcodeGen](https://github.com/yonaskolb/XcodeGen), and a GitHub Actions workflow ([`.github/workflows/ios-ci.yml`](.github/workflows/ios-ci.yml)) builds and tests the app on a real macOS runner in the cloud — so you get compiler feedback without anyone owning a Mac.
 
-## 1. Create the Xcode project
+## 0. Continuous Integration (no Mac required)
 
-1. On a Mac, open Xcode → **File → New → Project → iOS → App**.
-2. Product Name: `Ascend`. Interface: **SwiftUI**. Language: **Swift**. Storage: leave as default (we're wiring SwiftData manually) — do **not** check "Host in CloudKit" here, we configure that ourselves below.
-3. Save it as a sibling of this folder, e.g. `Ascend-Xcode/`.
-4. Set the deployment target to **iOS 18.0** (the code uses the iOS 18 `Tab(...)` TabView API, `@Observable`, and Swift 6 strict concurrency).
-5. In the new project, delete the placeholder `ContentView.swift` and the default `Item.swift` (or whatever SwiftData starter model Xcode generated) — this repo replaces them.
+Push this repo to GitHub and the `iOS CI` workflow runs automatically on every push/PR to `main` (or trigger it manually from the Actions tab — "Run workflow"). It:
 
-## 2. Bring in this source tree
+1. Installs XcodeGen and runs `xcodegen generate` to produce `Ascend.xcodeproj` from `project.yml` (the generated project is gitignored — it's always regenerated fresh, so `project.yml` is the single source of truth).
+2. Builds the `Ascend` scheme against a generic iOS Simulator destination (fast compile check, no signing needed).
+3. Runs the `AscendTests` unit tests against a booted iPhone 16 simulator.
 
-1. In Finder, delete the auto-generated `Assets.xcassets` and `Info.plist` inside the new Xcode project's folder (we bring our own).
-2. Drag the `Ascend/App`, `Ascend/Core`, and `Ascend/Features` folders from this repo into the Xcode project navigator, under the `Ascend` group. Choose **"Create groups"** and make sure **"Copy items if needed"** is checked, target `Ascend`.
-3. Drag `Ascend/Resources/Assets.xcassets` in the same way.
-4. Drag `Ascend/Resources/Info.plist` and `Ascend/Resources/Ascend.entitlements` in — then, in the target's **Build Settings**, set `INFOPLIST_FILE` and `CODE_SIGN_ENTITLEMENTS` to point at their paths if Xcode didn't wire them automatically.
-5. Drag the `AscendTests` folder in as a new **Unit Testing Bundle** target (File → New → Target → Unit Testing Bundle, name it `AscendTests`, then add the files) so `swift test`/⌘U picks up `ScoringServiceTests`, `HabitStreakTests`, and `GoalProgressTests`.
+No Apple Developer account, signing certificate, or physical device is needed for this — `CODE_SIGNING_ALLOWED=NO`/`CODE_SIGNING_REQUIRED=NO` are set explicitly so HealthKit/CloudKit entitlements don't block a simulator build. This gets you real compiler-error feedback on every push; it does **not** replace running on a real device (HealthKit needs one) or the TestFlight archive step below, which does need a Mac (or a paid CI plan with archive/export support) and a real signing identity.
 
-## 3. Enable capabilities
+If your GitHub runner's preinstalled Xcode doesn't have an "iPhone 16" simulator (Apple renames default devices periodically), the workflow's "List available iPhone simulators" step prints what's actually available — swap the name in `ios-ci.yml`'s test step to match.
+
+## 1. Open the project on a Mac
+
+1. Install XcodeGen once: `brew install xcodegen`.
+2. From the repo root, run:
+   ```bash
+   xcodegen generate
+   open Ascend.xcodeproj
+   ```
+3. That's it — `Ascend.xcodeproj` (with both the `Ascend` app target and `AscendTests` unit test target already wired up, Info.plist/entitlements already pointed at the right paths) is generated fresh from [`project.yml`](project.yml). It's gitignored, so re-run `xcodegen generate` any time you pull changes to `project.yml` or add/remove source files — no manual dragging files into Xcode required.
+4. Deployment target is already set to **iOS 18.0** in `project.yml` (the code uses the iOS 18 `Tab(...)` TabView API, `@Observable`, and Swift 6 strict concurrency).
+
+## 2. Enable capabilities
 
 In the `Ascend` target → **Signing & Capabilities**:
 
@@ -29,7 +36,7 @@ In the `Ascend` target → **Signing & Capabilities**:
 - **+ Capability → Background Modes** is *not* required — Ascend only schedules local notifications, no background fetch or remote push.
 - Set your Team and confirm automatic signing resolves.
 
-## 4. First CloudKit schema deploy
+## 3. First CloudKit schema deploy
 
 The first time you run on a signed-in device/simulator with iCloud, SwiftData will attempt to create the CloudKit schema automatically. To make sure the schema is visible to TestFlight testers (whose devices only see the **Production** CloudKit environment, not Development):
 
@@ -37,7 +44,7 @@ The first time you run on a signed-in device/simulator with iCloud, SwiftData wi
 2. Go to [CloudKit Dashboard](https://icloud.developer.apple.com/dashboard/) → your `iCloud.com.ascend.app` container → **Schema** → **Deploy Schema to Production**.
 3. Re-deploy any time you add/change a `@Model` type.
 
-## 5. Run it
+## 4. Run it
 
 - Build & run on a **real device** for HealthKit (the simulator has no Health data and most HealthKit APIs are unavailable there).
 - First launch seeds a few default exercises, starter habits, and one example goal (see [`SeedData.swift`](Ascend/App/SeedData.swift)).
