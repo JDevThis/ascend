@@ -1,0 +1,62 @@
+name: Ascend
+options:
+  bundleIdPrefix: com.ascend
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1,2"
+
+targets:
+  Ascend:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Ascend/App
+      - path: Ascend/Core
+      - path: Ascend/Features
+      - path: Ascend/Resources/Assets.xcassets
+    info:
+      path: Ascend/Resources/Info.plist
+    entitlements:
+      path: Ascend/Resources/Ascend.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ascend.app
+        PRODUCT_NAME: Ascend
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+
+  AscendTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: AscendTests
+    dependencies:
+      - target: Ascend
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.ascend.app.tests
+
+schemes:
+  Ascend:
+    build:
+      targets:
+        Ascend: all
+        AscendTests: [test]
+    test:
+      config: Debug
+      targets:
+        - AscendTests
+    run:
+      config: Debug
+    archive:
+      config: Release

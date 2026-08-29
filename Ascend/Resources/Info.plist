@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Ascend reads your recent weight and activity from Health to prefill your body metrics and keep your dashboard accurate.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Ascend writes completed workouts and logged weight to Health so all your fitness data stays in one place.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Ascend saves progress photos you choose to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ascend lets you attach progress photos from your library to your timeline and journal.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Ascend uses local notifications for habit reminders, workout day reminders, journal prompts, and rest timers.</string>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+</dict>
+</plist>

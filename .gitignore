@@ -1,0 +1,17 @@
+# Xcode / build products
+build/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+.swiftpm/
+.build/
+
+# XcodeGen generates the .xcodeproj from project.yml; don't commit the generated project.
+# (see project.yml — run `xcodegen generate` locally after cloning)
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
