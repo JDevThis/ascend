@@ -10,11 +10,11 @@ Push this repo to GitHub and the `iOS CI` workflow runs automatically on every p
 
 1. Installs XcodeGen and runs `xcodegen generate` to produce `Ascend.xcodeproj` from `project.yml` (the generated project is gitignored — it's always regenerated fresh, so `project.yml` is the single source of truth).
 2. Builds the `Ascend` scheme against a generic iOS Simulator destination (fast compile check, no signing needed).
-3. Runs the `AscendTests` unit tests against a booted iPhone 16 simulator.
+3. Runs the `AscendTests` unit tests against a booted simulator, picked dynamically (a plain "iPhone `<N>`" model, whichever generation the runner's Xcode currently ships).
 
 No Apple Developer account, signing certificate, or physical device is needed for this — `CODE_SIGNING_ALLOWED=NO`/`CODE_SIGNING_REQUIRED=NO` are set explicitly so HealthKit/CloudKit entitlements don't block a simulator build. This gets you real compiler-error feedback on every push; it does **not** replace running on a real device (HealthKit needs one) or the TestFlight archive step below, which does need a Mac (or a paid CI plan with archive/export support) and a real signing identity.
 
-If your GitHub runner's preinstalled Xcode doesn't have an "iPhone 16" simulator (Apple renames default devices periodically), the workflow's "List available iPhone simulators" step prints what's actually available — swap the name in `ios-ci.yml`'s test step to match.
+The workflow's "Pick an iPhone simulator name" step selects a device at runtime instead of hardcoding one, since Apple periodically retires old simulator models from new Xcode images (this already happened once — "iPhone 16" disappeared in favor of the iPhone 17 lineup). If that step's fallback logic ever fails to find any iPhone simulator, the preceding "List available iPhone simulators" step prints what's actually on the runner so you can adjust the matching pattern.
 
 ## 1. Open the project on a Mac
 

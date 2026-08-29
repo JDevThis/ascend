@@ -26,6 +26,27 @@ jobs:
       - name: List available iPhone simulators
         run: xcrun simctl list devices available iPhone
 
+      - name: Pick an iPhone simulator name
+        id: sim
+        run: |
+          # Simulator device names drift as Apple retires old models from new Xcode
+          # images (e.g. "iPhone 16" disappeared once Xcode started shipping the
+          # iPhone 17 lineup by default). Rather than hardcode a name that goes
+          # stale, pick whatever plain "iPhone <N>" model is available at runtime.
+          NAME=$(xcrun simctl list devices available -j \
+            | grep -oE '"name" : "iPhone [0-9]+"' \
+            | head -1 \
+            | sed -E 's/.*"(iPhone [0-9]+)"/\1/')
+          if [ -z "$NAME" ]; then
+            echo "No plain 'iPhone <N>' simulator found; falling back to any available iPhone."
+            NAME=$(xcrun simctl list devices available -j \
+              | grep -oE '"name" : "iPhone[^"]*"' \
+              | head -1 \
+              | sed -E 's/.*"(iPhone[^"]*)"/\1/')
+          fi
+          echo "Selected simulator: $NAME"
+          echo "device_name=$NAME" >> "$GITHUB_OUTPUT"
+
       - name: Build (generic iOS Simulator, no signing)
         run: |
           xcodebuild build \
@@ -35,11 +56,11 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Test (booted iPhone 16 simulator, no signing)
+      - name: Test (booted simulator, no signing)
         run: |
           xcodebuild test \
             -project Ascend.xcodeproj \
             -scheme Ascend \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device_name }},OS=latest" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
