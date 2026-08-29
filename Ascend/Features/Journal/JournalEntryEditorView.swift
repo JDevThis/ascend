@@ -7,7 +7,7 @@ struct JournalEntryEditorView: View {
 
     @State private var date: Date
     @State private var title: String
-    @State private var body: String
+    @State private var bodyText: String
     @State private var mood: Int
     @State private var tagsText: String
     @State private var showingPrompts = false
@@ -17,7 +17,7 @@ struct JournalEntryEditorView: View {
         self.entry = entry
         _date = State(initialValue: entry?.date ?? .now)
         _title = State(initialValue: entry?.title ?? "")
-        _body = State(initialValue: entry?.body ?? "")
+        _bodyText = State(initialValue: entry?.body ?? "")
         _mood = State(initialValue: entry?.mood ?? 3)
         _tagsText = State(initialValue: entry?.tags.joined(separator: ", ") ?? "")
     }
@@ -41,7 +41,7 @@ struct JournalEntryEditorView: View {
 
             Section("Entry") {
                 TextField("Title (optional)", text: $title)
-                TextEditor(text: $body)
+                TextEditor(text: $bodyText)
                     .frame(minHeight: 160)
                 Button("Need a prompt?") { showingPrompts = true }
                     .font(AscendFont.footnote())
@@ -75,9 +75,9 @@ struct JournalEntryEditorView: View {
                         .map { $0.trimmingCharacters(in: .whitespaces) }
                         .filter { !$0.isEmpty }
                     if let entry {
-                        viewModel.updateEntry(entry, title: title, body: body, mood: mood, tags: tags)
+                        viewModel.updateEntry(entry, title: title, body: bodyText, mood: mood, tags: tags)
                     } else {
-                        viewModel.createEntry(date: date, title: title, body: body, mood: mood, tags: tags)
+                        viewModel.createEntry(date: date, title: title, body: bodyText, mood: mood, tags: tags)
                     }
                     dismiss()
                 }
@@ -86,10 +86,10 @@ struct JournalEntryEditorView: View {
         .confirmationDialog("Guided Prompts", isPresented: $showingPrompts, titleVisibility: .visible) {
             ForEach(JournalViewModel.guidedPrompts, id: \.self) { prompt in
                 Button(prompt) {
-                    if body.isEmpty {
-                        body = prompt + "\n\n"
+                    if bodyText.isEmpty {
+                        bodyText = prompt + "\n\n"
                     } else {
-                        body += "\n\n" + prompt + "\n\n"
+                        bodyText += "\n\n" + prompt + "\n\n"
                     }
                 }
             }
