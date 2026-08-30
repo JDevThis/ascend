@@ -41,27 +41,38 @@ final class AppContainer {
     ])
 
     /// Production container: CloudKit-backed SwiftData store when available, real
-    /// HealthKit/Notification services. Falls back to a local-only store if the
-    /// CloudKit-backed one can't be created — this isn't just a CI/unsigned-build
-    /// concern, it also covers real users who aren't signed into iCloud or have it
-    /// disabled for this app; the app should degrade gracefully, not crash.
+    /// HealthKit/Notification services. Falls back to a local-only store when
+    /// CloudKit isn't usable — not signed into iCloud, iCloud disabled for this
+    /// app, or (in an unsigned build, e.g. CI simulator runs) no iCloud entitlement
+    /// at all.
+    ///
+    /// This has to be checked *before* attempting the CloudKit configuration, not
+    /// via a do/catch around it: when the process genuinely lacks the iCloud
+    /// entitlement, CKContainer aborts the process outright rather than throwing a
+    /// catchable Swift error, so `try?` around ModelContainer(...) can't save us.
+    /// `FileManager.ubiquityIdentityToken` is safe to call unconditionally — it
+    /// just returns nil rather than crashing when iCloud isn't available.
     static func live() -> AppContainer {
-        let cloudConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.com.ascend.app")
-        )
+        let healthKitService = HealthKitService()
+        let notificationService = NotificationService()
 
-        if let container = try? ModelContainer(for: schema, configurations: [cloudConfiguration]) {
-            return AppContainer(
-                modelContainer: container,
-                healthKitService: HealthKitService(),
-                notificationService: NotificationService()
+        if FileManager.default.ubiquityIdentityToken != nil {
+            let cloudConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .private("iCloud.com.ascend.app")
             )
+            if let container = try? ModelContainer(for: schema, configurations: [cloudConfiguration]) {
+                return AppContainer(
+                    modelContainer: container,
+                    healthKitService: healthKitService,
+                    notificationService: notificationService
+                )
+            }
         }
 
         Logger(subsystem: "com.ascend.app", category: "Persistence")
-            .warning("CloudKit-backed ModelContainer unavailable; falling back to local-only storage.")
+            .warning("iCloud unavailable; falling back to local-only storage.")
 
         let localConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         guard let localContainer = try? ModelContainer(for: schema, configurations: [localConfiguration]) else {
@@ -70,8 +81,8 @@ final class AppContainer {
 
         return AppContainer(
             modelContainer: localContainer,
-            healthKitService: HealthKitService(),
-            notificationService: NotificationService()
+            healthKitService: healthKitService,
+            notificationService: notificationService
         )
     }
 
